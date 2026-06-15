@@ -46,7 +46,7 @@ class MotusInferenceServer:
         # [FIX] Zero embedding fallback (pre-computed during init)
         self._zero_lang_emb = None
 
-        # 加载模型
+        # Load model
         if self.checkpoint_path and self.checkpoint_path.exists():
             self._load_model()
         else:
@@ -77,7 +77,7 @@ class MotusInferenceServer:
 
             wan_dir = "/checkpoints/Wan2.2-TI2V-5B"
             vae_path = os.path.join(wan_dir, "Wan2.2_VAE.pth")
-            wan_config_path = wan_dir
+            _wan_config_path = wan_dir
             vlm_path = "/checkpoints/Qwen3-VL-2B-Instruct"
 
             # [FIX] Read params from checkpoint config, use sensible defaults when missing
@@ -118,7 +118,7 @@ class MotusInferenceServer:
                 self.model.load_checkpoint(str(self.checkpoint_path), strict=False)
             except RuntimeError as e:
                 print(f"[Motus-Server] Checkpoint partial load (non-fatal): {e}", file=sys.stderr)
-            print(f"[Motus-Server] Checkpoint loaded", file=sys.stderr)
+            print("[Motus-Server] Checkpoint loaded", file=sys.stderr)
 
             self.model = self.model.to(self.device, dtype=torch.bfloat16)
             print(f"[Motus-Server] Model ready on {self.device}", file=sys.stderr)
@@ -131,7 +131,7 @@ class MotusInferenceServer:
         # === [FIX] Step 2: Load T5 encoder (CPU) ===
         try:
             from bak.wan.modules.t5 import T5EncoderModel
-            print(f"[Motus-Server] Loading T5EncoderModel on CPU...", file=sys.stderr)
+            print("[Motus-Server] Loading T5EncoderModel on CPU...", file=sys.stderr)
             sys.stderr.flush()
             self._t5_encoder = T5EncoderModel(
                 text_len=512,
@@ -140,7 +140,7 @@ class MotusInferenceServer:
                 checkpoint_path=os.path.join(wan_dir, "models_t5_umt5-xxl-enc-bf16.pth"),
                 tokenizer_path=os.path.join(wan_dir, "google/umt5-xxl"),
             )
-            print(f"[Motus-Server] T5EncoderModel ready", file=sys.stderr)
+            print("[Motus-Server] T5EncoderModel ready", file=sys.stderr)
         except Exception as e:
             print(f"[Motus-Server] T5 load failed: {e}, text encoding disabled", file=sys.stderr)
 
@@ -149,7 +149,7 @@ class MotusInferenceServer:
             from transformers import AutoProcessor
             self._vlm_processor = AutoProcessor.from_pretrained(
                 vlm_path, trust_remote_code=True)
-            print(f"[Motus-Server] VLM processor ready", file=sys.stderr)
+            print("[Motus-Server] VLM processor ready", file=sys.stderr)
         except Exception as e:
             print(f"[Motus-Server] VLM processor failed: {e}", file=sys.stderr)
 
@@ -168,7 +168,7 @@ class MotusInferenceServer:
         # [FIX] Language cache: limit max entries to prevent GPU memory leak
         self._language_cache_max = 64
 
-        # 标记就绪
+        # Mark as ready
         self.is_ready = True
 
     # ────────────────────────────
@@ -292,7 +292,7 @@ class MotusInferenceServer:
         if raw_frame is not None:
             vlm_inputs = self._build_vlm_inputs(raw_frame, language)
 
-        # ---- 模型推理 ----
+        # ---- Model inference ----
         if self.model is not None and first_frame is not None:
             try:
                 kwargs = dict(

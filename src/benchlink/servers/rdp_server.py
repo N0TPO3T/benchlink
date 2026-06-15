@@ -57,7 +57,7 @@ def _fix_targets(cfg):
 
 
 def build_model(ldp_checkpoint: str, at_checkpoint: str, rdp_repo: str, device: torch.device):
-    """加载 RDP 模型（LDP + AT），返回 model 对象。"""
+    """Load RDP model (LDP + AT), return model object."""
     sys.path.insert(0, rdp_repo)
     # RDP depends on some diffusion_policy modules
     dp_dir = str(Path(rdp_repo).parent / "dp" / "diffusion_policy")

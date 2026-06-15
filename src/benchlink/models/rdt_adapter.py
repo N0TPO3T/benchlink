@@ -23,12 +23,11 @@ Usage:
 
 import sys
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
 from benchlink.base import ModelAdapter
-from benchlink.schema import CanonicalObs, STANDARD_ACTION_DIM
+from benchlink.schema import CanonicalObs
 
 
 class RDTAdapter(ModelAdapter):
@@ -106,7 +105,6 @@ class RDTAdapter(ModelAdapter):
 
     def _load_encoders(self, rdt_cfg: dict):
         """Load pretrained vision and language encoders."""
-        import torch
 
         img_token_dim = rdt_cfg.get("img_token_dim", 1152)
         if img_token_dim == 1152:
@@ -174,9 +172,8 @@ class RDTAdapter(ModelAdapter):
         action = action_chunk[0, 0].cpu().numpy()
         return action[:7].astype(np.float64)
 
-    def _preprocess_image(self, obs: CanonicalObs) -> "torch.Tensor":
+    def _preprocess_image(self, obs: CanonicalObs):
         """Preprocess image into model input format."""
-        import torch
         import torchvision.transforms as T
 
         img = obs.rgb_static if obs.rgb_static is not None else obs.rgb_gripper

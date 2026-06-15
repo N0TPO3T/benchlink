@@ -1,7 +1,6 @@
 """Test ABC interface signatures for all adapters and runners."""
 
 import pytest
-from benchlink.base import ModelAdapter, TactileAdapter, BenchmarkRunner
 
 
 # Each (module_path, class_name, required_methods)

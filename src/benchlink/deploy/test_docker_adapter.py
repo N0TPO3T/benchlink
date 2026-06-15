@@ -19,15 +19,13 @@ Each test:
     5. close()
 """
 
-import json
 import subprocess
 import sys
-import time
 from pathlib import Path
 
 import numpy as np
 
-# 添加项目根到 sys.path
+# Add project root to sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from benchlink.schema import CanonicalObs
@@ -75,7 +73,7 @@ def test_adapter(name: str, config: dict) -> bool:
 
     print(f"  [OK] Container '{container_name}' is running (status={status})")
 
-    # 2. 创建适配器
+    # 2. Create adapter
     try:
         adapter_cls = get_model(name)
         adapter = adapter_cls()
@@ -128,7 +126,7 @@ def test_adapter(name: str, config: dict) -> bool:
         adapter.close()
         assert adapter._server_proc is None or adapter._server_proc.poll() is not None, \
             "Server process still running after close()"
-        print(f"  [OK] close() completed")
+        print("  [OK] close() completed")
     except Exception as e:
         print(f"  [FAIL] close() failed: {e}")
         return False
@@ -183,7 +181,7 @@ def main():
 
     # ── Summary ──
     print(f"\n{'='*60}")
-    print(f"  RESULTS SUMMARY")
+    print("  RESULTS SUMMARY")
     print(f"{'='*60}")
     all_passed = True
     for name, passed in results.items():

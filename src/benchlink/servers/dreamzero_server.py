@@ -18,7 +18,6 @@ Protocol (JSON Lines):
 import json
 import sys
 import argparse
-import os
 import traceback
 from pathlib import Path
 
@@ -186,9 +185,9 @@ def main():
 
     server = DreamZeroInferenceServer(args.checkpoint, device)
     if server.is_ready:
-        print(f"[DreamZero-Server] Ready with real model weights", file=sys.stderr)
+        print("[DreamZero-Server] Ready with real model weights", file=sys.stderr)
     else:
-        print(f"[DreamZero-Server] Running in stub mode (no model loaded)", file=sys.stderr)
+        print("[DreamZero-Server] Running in stub mode (no model loaded)", file=sys.stderr)
 
     # Ready signal
     print(json.dumps({"status": "ready"}))

@@ -23,9 +23,7 @@ Usage:
     feat = adapter.encode(tactile_img)  # -> (768,)
 """
 
-import sys
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
@@ -92,7 +90,7 @@ class SparshAdapter(TactileAdapter):
                     self.model.load_state_dict(load_keys, strict=False)
                     print(f"[SparshAdapter] Loaded Sparsh checkpoint: {checkpoint_path}")
                 else:
-                    print(f"[SparshAdapter] Checkpoint key mismatch, using timm pretrained")
+                    print("[SparshAdapter] Checkpoint key mismatch, using timm pretrained")
                     self.model = timm.create_model(timm_model_name, pretrained=True, num_classes=0)
             except Exception as e:
                 print(f"[SparshAdapter] Checkpoint load failed ({e}), using timm pretrained")

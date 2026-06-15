@@ -30,13 +30,12 @@ Usage:
 """
 
 import random
-from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 import numpy as np
 
 from benchlink.base import BenchmarkRunner, ModelAdapter
-from benchlink.schema import CanonicalObs, STANDARD_ACTION_DIM
+from benchlink.schema import CanonicalObs
 
 
 class DroidSimRunner(BenchmarkRunner):
@@ -186,7 +185,7 @@ class DroidSimRunner(BenchmarkRunner):
         return action[:6].copy()
 
     def close(self) -> None:
-        """清理环境。"""
+        """Clean up environment."""
         if self.env is not None:
             self.env.close()
             self.env = None

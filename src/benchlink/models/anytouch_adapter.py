@@ -64,7 +64,6 @@ class AnyTouchAdapter(TactileAdapter):
             if repo_str not in sys.path:
                 sys.path.insert(0, repo_str)
 
-        import torch
         import torchvision.transforms as T
 
         if stage == 2:
@@ -160,7 +159,7 @@ class AnyTouchAdapter(TactileAdapter):
                 self.model.load_state_dict(state_dict, strict=False)
             print(f"[AnyTouchAdapter] Loaded Stage 2 checkpoint: {checkpoint}")
         else:
-            print(f"[AnyTouchAdapter] No checkpoint, using pretrained CLIPVisionModel")
+            print("[AnyTouchAdapter] No checkpoint, using pretrained CLIPVisionModel")
 
     def _load_stage1(self, checkpoint: str, img_size: int) -> None:
         """Load Stage 1 MAE pretrained model (encoder only)."""

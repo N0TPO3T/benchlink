@@ -23,7 +23,6 @@ Supported obs keys:
 import json
 import sys
 import argparse
-import os
 import traceback
 from pathlib import Path
 
@@ -43,7 +42,6 @@ def load_pi0_model(checkpoint_path: str, device: torch.device):
 
     # Try loading via octopi
     try:
-        import octopi
         from octopi.models import Pi0Model
         print("[OpenPI-Server] Using octopi.Pi0Model", file=sys.stderr)
         model = Pi0Model.load_from_checkpoint(checkpoint_path) if checkpoint_path else Pi0Model()
@@ -96,7 +94,7 @@ def preprocess_obs(obs: dict, device: torch.device) -> dict:
     """Convert JSON obs to model input tensor dict."""
     model_inputs = {}
 
-    # RGB 图像: (H, W, 3) → (1, 3, H, W)
+    # RGB image: (H, W, 3) → (1, 3, H, W)
     if "rgb_static" in obs:
         rgb = np.array(obs["rgb_static"], dtype=np.float32)
         # Normalize to [0, 1] if in [0, 255]
@@ -121,10 +119,10 @@ def preprocess_obs(obs: dict, device: torch.device) -> dict:
 
 @torch.no_grad()
 def infer(model, model_inputs: dict, device: torch.device) -> list:
-    """执行推理，返回 7-D 动作 [dx, dy, dz, droll, dpitch, dyaw, gripper]。"""
+    """Run inference, return 7-D action [dx, dy, dz, droll, dpitch, dyaw, gripper]."""
     action = None
 
-    # 尝试 octopi API: model.act(image, instruction)
+    # Try octopi API: model.act(image, instruction)
     if hasattr(model, "act") and callable(model.act):
         try:
             img = model_inputs.get("image")
@@ -164,7 +162,7 @@ def infer(model, model_inputs: dict, device: torch.device) -> list:
 def main():
     parser = argparse.ArgumentParser(description="OpenPI (pi0) Persistent Inference Server")
     parser.add_argument("--checkpoint", default="", help="Model checkpoint path")
-    parser.add_argument("--device", default="cuda:0", help="推理设备")
+    parser.add_argument("--device", default="cuda:0", help="Inference device")
     args = parser.parse_args()
 
     device = torch.device(args.device)
@@ -189,7 +187,7 @@ def main():
         try:
             req = json.loads(line)
 
-            # 停止命令
+            # Stop command
             if req.get("stop"):
                 break
 
@@ -202,7 +200,7 @@ def main():
                 sys.stdout.flush()
                 continue
 
-            # 推理请求
+            # Inference request
             obs = req.get("obs", req)
             model_inputs = preprocess_obs(obs, device)
             action = infer(model, model_inputs, device)

@@ -354,7 +354,7 @@ class VLA_TouchAdapter(ModelAdapter, TactileAdapter):
     def _act_regression(
         self,
         inputs: dict,
-        tactile_feat: "torch.Tensor",
+        tactile_feat,
     ) -> np.ndarray:
         """regression mode: Qwen hidden + tactile(projected) -> MLP -> 7-D action.
 
@@ -400,7 +400,7 @@ class VLA_TouchAdapter(ModelAdapter, TactileAdapter):
     def _act_token_decode(
         self,
         inputs: dict,
-        tactile_feat: "torch.Tensor",
+        tactile_feat,
     ) -> np.ndarray:
         """token_decode mode: interface stub, not yet implemented."""
         raise NotImplementedError(
@@ -408,7 +408,7 @@ class VLA_TouchAdapter(ModelAdapter, TactileAdapter):
             "Use action_decode_mode='regression' instead."
         )
 
-    def _encode_tactile_to_tensor(self, tactile_img: np.ndarray) -> "torch.Tensor":
+    def _encode_tactile_to_tensor(self, tactile_img: np.ndarray):
         """Tactile image -> (1, feat_dim) tensor (preserves batch dimension)."""
         import torch
 

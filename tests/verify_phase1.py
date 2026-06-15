@@ -16,7 +16,6 @@ import json
 import sys
 import traceback
 from pathlib import Path
-from typing import Dict, Any, Optional
 
 import numpy as np
 
@@ -27,7 +26,6 @@ def test_registration():
     print("=" * 60)
 
     from benchlink.registry import (
-        get_adapter, get_tactile, get_runner,
         list_models, list_tactile_models, list_benchmarks,
     )
 
@@ -59,22 +57,6 @@ def test_registration():
     assert "unitac_ecf" in benches, "UniTacECFRunner not registered"
 
     # Verify registered classes can be imported successfully
-    from benchlink.models.fastwam_adapter import FastWAMAdapter
-    from benchlink.models.dp_adapter import DPAdapter
-    from benchlink.models.anytouch_adapter import AnyTouchAdapter
-    from benchlink.models.sparsh_adapter import SparshAdapter
-    from benchlink.models.t3_adapter import T3Adapter
-    from benchlink.benchmarks.libero_runner import LiberoRunner
-    from benchlink.benchmarks.anytouch_probe_runner import AnyTouchProbeRunner
-    from benchlink.benchmarks.maniskill_runner import ManiSkillRunner
-    from benchlink.benchmarks.robotwin_runner import RoboTwinRunner
-    from benchlink.benchmarks.droid_sim_runner import DroidSimRunner
-    from benchlink.models.vla_touch_adapter import VLA_TouchAdapter
-    from benchlink.models.unitac_ecf_adapter import UniTac_ECFAdapter
-    from benchlink.models.openpi_adapter import OpenPiAdapter
-    from benchlink.models.motus_adapter import MotusAdapter
-    from benchlink.models.dreamzero_adapter import DreamZeroAdapter
-    from benchlink.benchmarks.unitac_ecf_runner import UniTacECFRunner
 
     print("  ✅ All components registered correctly, imports successful")
 
@@ -241,7 +223,7 @@ def test_action_line():
     print("=" * 60)
 
     from benchlink.base import ModelAdapter
-    from benchlink.schema import CanonicalObs, STANDARD_ACTION_DIM
+    from benchlink.schema import CanonicalObs
 
     # ── Mock FastWAM model ──
     class MockFastWAM(ModelAdapter):

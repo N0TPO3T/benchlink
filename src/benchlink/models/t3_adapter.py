@@ -22,7 +22,6 @@ Usage:
 
 import sys
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
@@ -63,7 +62,6 @@ class T3Adapter(TactileAdapter):
         if t3_repo and str(t3_repo) not in sys.path:
             sys.path.insert(0, str(t3_repo))
 
-        import torch
         import torchvision.transforms as T
 
         # -- Build encoder --
@@ -126,7 +124,7 @@ class T3Adapter(TactileAdapter):
 
     # -- Encoder factory methods --
 
-    def _build_mae_vit_encoder(self, img_size: int, checkpoint: str) -> 'torch.nn.Module':
+    def _build_mae_vit_encoder(self, img_size: int, checkpoint: str):
         """Build MAE-pretrained ViT encoder."""
         from t3.models.encoder import MAEViTEncoder
 
@@ -142,7 +140,7 @@ class T3Adapter(TactileAdapter):
                 print(f"[T3Adapter] Checkpoint load failed ({e}), using random init")
         return encoder
 
-    def _build_vit_encoder(self, img_size: int, checkpoint: str) -> 'torch.nn.Module':
+    def _build_vit_encoder(self, img_size: int, checkpoint: str):
         """Build standard ViT encoder."""
         from t3.models.encoder import ViTEncoder
 
@@ -159,7 +157,7 @@ class T3Adapter(TactileAdapter):
                 print(f"[T3Adapter] Checkpoint load failed ({e}), using random init")
         return encoder
 
-    def _build_resnet_encoder(self, checkpoint: str) -> 'torch.nn.Module':
+    def _build_resnet_encoder(self, checkpoint: str):
         """Build ResNet encoder."""
         from t3.models.encoder import ResNetEncoder
 
@@ -176,7 +174,7 @@ class T3Adapter(TactileAdapter):
                 print(f"[T3Adapter] Checkpoint load failed ({e}), using ImageNet pretrained")
         return encoder
 
-    def _build_cnn_encoder(self, img_size: int, checkpoint: str) -> 'torch.nn.Module':
+    def _build_cnn_encoder(self, img_size: int, checkpoint: str):
         """Build custom CNN encoder."""
         from t3.models.encoder import CNNEncoder
 

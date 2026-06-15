@@ -61,7 +61,6 @@ class AnyTouchProbeRunner(BenchmarkRunner):
 
         self.img_size = config.get("img_size", 224)
         subsets = config.get("subsets", ["tag", "of1", "of2", "feel"])
-        seed = config.get("seed", 42)
 
         # ── Load probe dataset ──
         for subset in subsets:
@@ -73,7 +72,7 @@ class AnyTouchProbeRunner(BenchmarkRunner):
 
     def evaluate(
         self,
-        model: 'ModelAdapter',
+        model,
         n_episodes: int = None,
         **kwargs,
     ) -> Dict[str, Any]:
@@ -135,7 +134,7 @@ class AnyTouchProbeRunner(BenchmarkRunner):
         images = []
         labels = []
 
-        # 读取 label 索引
+        # Read label index
         label_file = subset_dir / "labels.txt"
         if not label_file.exists():
             # Fallback: read subdirectory structure under images/

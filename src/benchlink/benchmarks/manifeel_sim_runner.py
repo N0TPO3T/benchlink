@@ -17,7 +17,6 @@ import subprocess
 import json
 import sys
 import time
-import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
@@ -28,7 +27,7 @@ from benchlink.base import BenchmarkRunner, ModelAdapter
 from benchlink.schema import CanonicalObs
 
 
-# Docker 内 sim server 脚本路径
+# Path to sim server script inside Docker
 SIM_SERVER_DIR = str(Path(__file__).resolve().parent.parent)  # benchlink/
 SIM_MOUNT = "/opt/manifeel_ef"
 SIM_SERVER_CONTAINER = f"{SIM_MOUNT}/manifeel_sim_server.py"
@@ -257,7 +256,7 @@ class ManiFeelSimRunner(BenchmarkRunner):
         """
         # Assemble proprio from named tensors (ee_pos + ee_quat)
         ee_pos = np.asarray(sim_obs.get("ee_pos", [0, 0, 0]), dtype=np.float32).flatten()
-        ee_quat = np.asarray(sim_obs.get("ee_quat", [0, 0, 1, 0]), dtype=np.float32).flatten()
+        ee_quat = np.asarray(sim_obs.get("ee_quat", [0, 0, 0, 1]), dtype=np.float32).flatten()
         proprio = np.concatenate([ee_pos, ee_quat])  # (7,)
 
         # P0: use random noise as image placeholder (simulation cameras not enabled)
@@ -274,9 +273,9 @@ class ManiFeelSimRunner(BenchmarkRunner):
         )
 
     def _from_canonical(self, action: np.ndarray) -> np.ndarray:
-        """标准动作 (7,) → IsaacGym sim 动作 (6,)。
+        """Standard action (7,) → IsaacGym sim action (6,).
 
-        标准:    [dx, dy, dz, droll, dpitch, dyaw, gripper]
+        Standard: [dx, dy, dz, droll, dpitch, dyaw, gripper]
         IsaacGym: [dx, dy, dz, drot_x, drot_y, drot_z] (6-D task space impedance delta)
         """
         return action[:6].copy()

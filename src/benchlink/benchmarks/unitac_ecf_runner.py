@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-UniTacECFRunner — 多数据集触觉评测执行器。
+UniTacECFRunner — multi-dataset tactile evaluation executor.
 
-评测集合:
-  - TAG:     触觉属性分类（12 类材料属性）
-  - OF1:     光学流分类（3 类接触模式）
-  - OF2:     光学流分类（5 类接触模式）
-  - Feel:    触觉情感分类（4 类情感）
-  - VitacLab: 机器人触觉场景分类（6 类任务）
-  - FOTA:    触觉物体分类（10 类物体）
+Evaluation sets:
+  - TAG:     tactile attribute classification (12 material attributes)
+  - OF1:     optical flow classification (3 contact modes)
+  - OF2:     optical flow classification (5 contact modes)
+  - Feel:    tactile emotion classification (4 emotions)
+  - VitacLab: robot tactile scene classification (6 tasks)
+  - FOTA:    tactile object classification (10 objects)
 
-每个子数据集: 图像 + 标签 → model.encode() → 线性 probe / KNN → accuracy
+Each subset: image + label → model.encode() → linear probe / KNN → accuracy
 
-用法:
+Usage:
     runner = UniTacECFRunner()
     runner.setup({"data_root": "/path/to/unitac_ecf_data"})
     results = runner.evaluate(model)
@@ -28,9 +28,9 @@ from benchlink.base import BenchmarkRunner, TactileAdapter
 
 
 class UniTacECFRunner(BenchmarkRunner):
-    """UniTacECF 多数据集触觉评测执行器。"""
+    """UniTacECF multi-dataset tactile evaluation executor."""
 
-    # 默认子数据集列表： (name, n_classes, description)
+    # Default subset list: (name, n_classes, description)
     DEFAULT_SUBSETS = {
         "tag":     {"n_classes": 12, "desc": "tactile attribute classification"},
         "of1":     {"n_classes": 3,  "desc": "optical flow classification (3-class)"},
@@ -48,14 +48,14 @@ class UniTacECFRunner(BenchmarkRunner):
         self._test_ratio: float = 0.3
 
     def setup(self, config: dict) -> None:
-        """初始化评测配置。
+        """Initialize evaluation configuration.
 
-        config 必需字段:
-            data_root:  UniTacECF 数据集根目录
-        config 可选字段:
-            subsets:    启用的子数据集列表 (默认所有)
-            test_ratio: 测试集比例 (默认 0.3)
-            seed:       随机种子 (默认 42)
+        Required config fields:
+            data_root:  UniTacECF dataset root directory
+        Optional config fields:
+            subsets:    enabled subset list (default all)
+            test_ratio: test set ratio (default 0.3)
+            seed:       random seed (default 42)
         """
         self.data_root = Path(config.get("data_root", ""))
         if not self.data_root or not self.data_root.exists():
@@ -68,11 +68,11 @@ class UniTacECFRunner(BenchmarkRunner):
         seed = config.get("seed", 42)
         np.random.seed(seed)
 
-        # 启用子数据集
+        # Enabled subsets
         enabled = config.get("subsets", list(self.DEFAULT_SUBSETS.keys()))
         self._subsets = {k: v for k, v in self.DEFAULT_SUBSETS.items() if k in enabled}
 
-        # 加载数据
+        # Load data
         self._datasets = {}
         for name in self._subsets:
             data_path = self.data_root / name
@@ -90,10 +90,10 @@ class UniTacECFRunner(BenchmarkRunner):
         n_episodes: int = 1,
         **kwargs,
     ) -> Dict[str, Any]:
-        """运行所有子数据集的触觉评测。
+        """Run tactile evaluation on all subsets.
 
         Args:
-            model: 已加载的 TactileAdapter
+            model: loaded TactileAdapter
 
         Returns:
             dict: {subset_name: accuracy, "mean": float, "n_subsets": int}
@@ -110,23 +110,23 @@ class UniTacECFRunner(BenchmarkRunner):
             results[name] = accuracy
             print(f"[UniTacECFRunner] {name}: accuracy = {accuracy:.4f}")
 
-        # 计算平均
+        # Compute average
         valid = [v for v in results.values() if v >= 0]
         results["mean"] = float(np.mean(valid)) if valid else -1.0
         results["n_subsets"] = len(valid)
 
         return results
 
-    # ── 内部方法 ──
+    # ── Internal methods ──
 
     def _load_subset(self, data_path: Path) -> list:
-        """加载单个子数据集。
+        """Load a single subset.
 
-        支持两种格式:
-          1. images/ + labels.txt (每行: image_filename label_id)
+        Supports two formats:
+          1. images/ + labels.txt (each line: image_filename label_id)
           2. .npz ({"images": (N,H,W,3), "labels": (N,)})
         """
-        # 尝试 .npz
+        # Try .npz
         npz_files = list(data_path.glob("*.npz"))
         if npz_files:
             data = np.load(npz_files[0])
@@ -134,7 +134,7 @@ class UniTacECFRunner(BenchmarkRunner):
             labels = data["labels"]
             return [(images[i], int(labels[i])) for i in range(len(images))]
 
-        # 尝试 images/ + labels.txt
+        # Try images/ + labels.txt
         img_dir = data_path / "images"
         labels_file = data_path / "labels.txt"
         if img_dir.exists() and labels_file.exists():
@@ -151,12 +151,12 @@ class UniTacECFRunner(BenchmarkRunner):
                         samples.append((img, label))
             return samples
 
-        # 尝试 images/ 下每个子目录以标签命名
+        # Try subdirectories under images/ named by label
         subdirs = sorted([d for d in img_dir.iterdir() if d.is_dir()]) if img_dir.exists() else []
         if subdirs:
             samples = []
             for label, subdir in enumerate(subdirs):
-                for img_file in sorted(subdir.glob("*.*"))[:200]:  # 每类最多 200 张
+                for img_file in sorted(subdir.glob("*.*"))[:200]:  # max 200 per class
                     import cv2
                     img = cv2.imread(str(img_file))
                     if img is not None:
@@ -172,17 +172,17 @@ class UniTacECFRunner(BenchmarkRunner):
         data: list,
         n_classes: int,
     ) -> float:
-        """线性 probe 评测: 用编码特征训练逻辑回归分类器。"""
+        """Linear probe evaluation: train a logistic regression classifier on encoded features."""
         from sklearn.linear_model import LogisticRegression
         from sklearn.preprocessing import StandardScaler
         from sklearn.pipeline import make_pipeline
         from sklearn.model_selection import train_test_split
 
-        # 编码所有样本
+        # Encode all samples
         images, labels = zip(*data)
         labels = np.array(labels)
 
-        # 分批编码以防 OOM
+        # Encode in batches to prevent OOM
         features = []
         batch_size = 64
         for i in range(0, len(images), batch_size):
@@ -191,13 +191,13 @@ class UniTacECFRunner(BenchmarkRunner):
             features.extend(batch_feats)
         features = np.array(features)
 
-        # 划分训练/测试
+        # Split train/test
         X_train, X_test, y_train, y_test = train_test_split(
             features, labels, test_size=self._test_ratio, random_state=42,
             stratify=labels,
         )
 
-        # 训练线性分类器
+        # Train linear classifier
         clf = make_pipeline(StandardScaler(), LogisticRegression(
             max_iter=1000, multi_class="auto", C=1.0,
         ))
@@ -213,5 +213,5 @@ class UniTacECFRunner(BenchmarkRunner):
         raise NotImplementedError("UniTacECFRunner does not use _from_canonical()")
 
     def close(self) -> None:
-        """清理。"""
+        """Clean up."""
         self._datasets.clear()

@@ -2,7 +2,7 @@
 
 from benchlink.registry import (
     list_models, list_tactile_models, list_benchmarks,
-    get_adapter, get_tactile, get_runner,
+    get_adapter, get_runner,
 )
 
 

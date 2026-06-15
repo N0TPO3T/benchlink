@@ -15,7 +15,7 @@ Usage:
 import numpy as np
 
 from benchlink.models.docker_base import DockerModelAdapter
-from benchlink.schema import CanonicalObs, STANDARD_ACTION_DIM
+from benchlink.schema import CanonicalObs
 
 
 class OpenPiAdapter(DockerModelAdapter):

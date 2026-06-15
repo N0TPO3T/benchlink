@@ -48,7 +48,7 @@ if __name__ == "__main__":
     action = adapter.act(obs)
     assert is_valid_standard_action(action), f"Invalid action: {action}"
     print(f"[DummyAdapter] action={action}")
-    print(f"[DummyAdapter] Valid standard action: True")
+    print("[DummyAdapter] Valid standard action: True")
 
     adapter.reset()
     print("[DummyAdapter] All checks passed!")

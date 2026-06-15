@@ -26,7 +26,7 @@ Usage:
 """
 
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 import numpy as np
 
@@ -62,8 +62,8 @@ class LiberoRunner(BenchmarkRunner):
         self.task_name = config["task_name"]
         self._max_steps = config.get("max_steps", 200)
         seed = config.get("seed", 42)
-        task_suite = config.get("task_suite", "libero_spatial")
-        task_id = config.get("task_id", 0)
+        _task_suite = config.get("task_suite", "libero_spatial")
+        _task_id = config.get("task_id", 0)
 
         # Add LIBERO repo to Python path
         libero_root = config.get("libero_root")

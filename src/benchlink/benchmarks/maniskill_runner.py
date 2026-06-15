@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 """
-ManiSkill → BenchmarkRunner。
+ManiSkill → BenchmarkRunner.
 
 ManiSkill (v2/v3):
-  - GPU 加速仿真环境（SAPIEN + MuJoCo 后端）
-  - 多种控制模式: pd_joint_delta_pos, pd_ee_delta_pos, etc.
-  - 观察: rgb, depth, 关节位置, 夹爪状态
-  - 动作: 取决于 control_mode，默认 7-D joint delta + gripper
+  - GPU-accelerated simulation environment (SAPIEN + MuJoCo backend)
+  - Multiple control modes: pd_joint_delta_pos, pd_ee_delta_pos, etc.
+  - Observations: rgb, depth, joint positions, gripper state
+  - Actions: depends on control_mode, default 7-D joint delta + gripper
 
-数据映射:
+Data mapping:
   image/rgb (H,W,3)             → rgb_static
   image/depth (H,W)             → depth
   robot_joint_pos (7,)          → proprio
   gripper_qpos (2,)             → extra["gripper_qpos"]
   task_description              → language
 
-动作映射:
-  标准 7-D delta_pose + gripper → ManiSkill 原生格式
-  裁剪到 env.action_space 边界
+Action mapping:
+  Standard 7-D delta_pose + gripper → ManiSkill native format
+  Clipped to env.action_space bounds
 
-依赖:
-  pip install mani_skill (v3) 或 mani-skill2 (v2)
+Dependencies:
+  pip install mani_skill (v3) or mani-skill2 (v2)
   pip install gymnasium
 
-用法:
+Usage:
     runner = ManiSkillRunner()
     runner.setup({"env_id": "PickCube-v1", "control_mode": "pd_joint_delta_pos"})
     results = runner.evaluate(model, n_episodes=10)
@@ -31,7 +31,6 @@ ManiSkill (v2/v3):
 """
 
 import random
-from pathlib import Path
 from typing import Dict, Any, Optional
 
 import numpy as np
@@ -41,7 +40,7 @@ from benchlink.schema import CanonicalObs, STANDARD_ACTION_DIM
 
 
 class ManiSkillRunner(BenchmarkRunner):
-    """ManiSkill 仿真评测执行器。"""
+    """ManiSkill simulation evaluation executor."""
 
     def __init__(self):
         super().__init__()
@@ -53,17 +52,17 @@ class ManiSkillRunner(BenchmarkRunner):
         self._action_high: Optional[np.ndarray] = None
 
     def setup(self, config: dict) -> None:
-        """初始化 ManiSkill 仿真环境。
+        """Initialize ManiSkill simulation environment.
 
-        config 必需字段:
-            env_id:     环境 ID (如 "PickCube-v1", "StackCube-v1")
-        config 可选字段:
-            obs_mode:       观测模式 (默认 "state_dict", 可选 "rgb", "rgbd")
-            control_mode:   控制模式 (默认 "pd_joint_delta_pos")
-            sim_backend:    仿真后端 (默认 "gpu", 可选 "cpu")
-            max_steps:      每 episode 最大步数 (默认 200)
-            task_description: 任务描述文本（用于 _to_canonical 的 language）
-            seed:           随机种子 (默认 42)
+        Required config fields:
+            env_id:     environment ID (e.g., "PickCube-v1", "StackCube-v1")
+        Optional config fields:
+            obs_mode:       observation mode (default "state_dict", optional "rgb", "rgbd")
+            control_mode:   control mode (default "pd_joint_delta_pos")
+            sim_backend:    simulation backend (default "gpu", optional "cpu")
+            max_steps:      max steps per episode (default 200)
+            task_description: task description text (used for _to_canonical language field)
+            seed:           random seed (default 42)
         """
         env_id = config.get("env_id", "PickCube-v1")
         obs_mode = config.get("obs_mode", "state_dict")
@@ -76,7 +75,7 @@ class ManiSkillRunner(BenchmarkRunner):
         np.random.seed(ms_seed)
 
         import gymnasium as gym
-        import mani_skill.envs  # noqa: F401 — 注册 envs
+        import mani_skill.envs  # noqa: F401 — register envs
 
         self.env = gym.make(
             env_id,
@@ -85,7 +84,7 @@ class ManiSkillRunner(BenchmarkRunner):
             sim_backend=sim_backend,
         )
 
-        # ── 缓存 action space 边界（用于动作裁剪） ──
+        # ── Cache action space bounds (for action clipping) ──
         if hasattr(self.env.action_space, "shape"):
             self._action_dim = self.env.action_space.shape[0]
         if hasattr(self.env.action_space, "low") and hasattr(self.env.action_space, "high"):
@@ -100,11 +99,11 @@ class ManiSkillRunner(BenchmarkRunner):
         n_episodes: int = 10,
         **kwargs,
     ) -> Dict[str, Any]:
-        """跑 N 个 episode 的仿真评测。
+        """Run N episodes of simulation evaluation.
 
         Args:
-            model:      已加载的 ModelAdapter
-            n_episodes: 评测 episode 数
+            model:      loaded ModelAdapter
+            n_episodes: number of evaluation episodes
 
         Returns:
             dict: {
@@ -134,7 +133,7 @@ class ManiSkillRunner(BenchmarkRunner):
                     break
 
             episode_lengths.append(step + 1)
-            # ManiSkill v3 用 "success", v2 用 "is_success"
+            # ManiSkill v3 uses "success", v2 uses "is_success"
             succ = info.get("success", info.get("is_success", False))
             successes.append(1.0 if succ else 0.0)
 
@@ -148,19 +147,19 @@ class ManiSkillRunner(BenchmarkRunner):
             "total_steps": int(np.sum(episode_lengths)),
         }
 
-    # ── 格式转换 ──
+    # ── Format conversion ──
 
     def _to_canonical(self, raw_obs: Any) -> CanonicalObs:
-        """ManiSkill 原生观察 → CanonicalObs。
+        """ManiSkill native observation → CanonicalObs.
 
-        支持 state_dict 模式（推荐）和原始 dict 模式。
+        Supports state_dict mode (recommended) and raw dict mode.
         """
         rgb = None
         depth = None
         proprio = None
 
         if isinstance(raw_obs, dict):
-            # ── state_dict 模式: obs["image"]={"rgb": ..., "depth": ...} ──
+            # ── state_dict mode: obs["image"]={"rgb": ..., "depth": ...} ──
             img_dict = raw_obs.get("image", {})
             if isinstance(img_dict, dict):
                 rgb = img_dict.get("rgb", rgb)
@@ -168,7 +167,7 @@ class ManiSkillRunner(BenchmarkRunner):
             elif isinstance(img_dict, np.ndarray):
                 rgb = img_dict
 
-            # ── 多相机模式: 取第一台相机的 RGB ──
+            # ── Multi-camera mode: take RGB from the first camera ──
             if rgb is None:
                 for cam_k in ("camera0", "cam0", "hand_camera", "base_camera"):
                     cam = raw_obs.get(cam_k, {})
@@ -177,7 +176,7 @@ class ManiSkillRunner(BenchmarkRunner):
                         if rgb is not None:
                             break
 
-            # ── proprio: 机器人状态（用 None 安全链替代 or, 避免 numpy 数组触发 ValueError） ──
+            # ── proprio: robot state (use None-safe chaining instead of 'or' to avoid ValueError from numpy arrays) ──
             proprio = raw_obs.get("robot_joint_pos")
             if proprio is None:
                 proprio = raw_obs.get("agent")
@@ -192,19 +191,19 @@ class ManiSkillRunner(BenchmarkRunner):
         )
 
     def _from_canonical(self, action: np.ndarray) -> np.ndarray:
-        """标准动作 (7,) → ManiSkill 原生动作。
+        """Standard action (7,) → ManiSkill native action.
 
-        裁剪到 action_space 边界以防 env 报错。
+        Clip to action_space bounds to prevent env errors.
         """
         env_action = action.copy().astype(np.float64)
 
-        # 适配 action 空间维度
+        # Adapt to action space dimension
         if self._action_dim < STANDARD_ACTION_DIM:
             env_action = env_action[:self._action_dim]
         elif self._action_dim > STANDARD_ACTION_DIM:
             env_action = np.pad(env_action, (0, self._action_dim - STANDARD_ACTION_DIM))
 
-        # 裁剪边界
+        # Clip to bounds
         if self._action_low is not None:
             env_action = np.clip(
                 env_action,
@@ -215,7 +214,7 @@ class ManiSkillRunner(BenchmarkRunner):
         return env_action
 
     def close(self) -> None:
-        """清理环境。"""
+        """Clean up environment."""
         if self.env is not None:
             self.env.close()
             self.env = None

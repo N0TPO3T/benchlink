@@ -8,7 +8,10 @@ Protocol:
     Output:  {"obs": {...}, "reward": 0.0, "done": false, "step": 0}
 """
 
-import sys, json, os, traceback
+import sys
+import json
+import os
+import traceback
 
 ISAACGYM_DIR = "/opt/isaacgym/python"
 ISAACGYMENVS_DIR = "/usr/local/lib/python3.8/dist-packages/isaacgymenvs"

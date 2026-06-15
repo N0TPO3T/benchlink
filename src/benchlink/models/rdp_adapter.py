@@ -20,7 +20,6 @@ import subprocess
 import sys
 import json
 import os
-import time
 from pathlib import Path
 from typing import Optional
 
@@ -150,7 +149,7 @@ class RDPAdapter(ModelAdapter):
         if self.at_checkpoint:
             cmd.extend(["--at-checkpoint", self.at_checkpoint])
 
-        self._log(f"Starting RDP inference server...")
+        self._log("Starting RDP inference server...")
         self._log(f"  Cmd: {' '.join(cmd)}")
         self._server_proc = subprocess.Popen(
             cmd,

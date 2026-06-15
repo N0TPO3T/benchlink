@@ -44,7 +44,6 @@ class FastWAMAdapter(ModelAdapter):
         img_size = config.get("img_size", 224)
 
         # ── Lazy import: only triggered in load(), does not pollute global namespace ──
-        import torch
         import torchvision.transforms as T
         from fastwam import FastWAMModel
 
@@ -117,6 +116,5 @@ class FastWAMAdapter(ModelAdapter):
 
     def reset(self) -> None:
         """Called at the start of each episode."""
-        import torch
         if self.model is not None:
             self.model.reset_history()

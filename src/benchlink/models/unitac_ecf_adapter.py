@@ -13,13 +13,11 @@ Usage:
     feat = adapter.encode(tactile_img)  # -> (768,)
 """
 
-from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
 from benchlink.base import TactileAdapter
-from benchlink.registry import get_tactile, list_tactile_models
+from benchlink.registry import get_tactile
 
 
 class UniTac_ECFAdapter(TactileAdapter):
