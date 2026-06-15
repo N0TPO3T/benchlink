@@ -29,6 +29,24 @@ def test_registration():
         list_models, list_tactile_models, list_benchmarks,
     )
 
+    # Verify registered classes can be imported successfully
+    from benchlink.models.fastwam_adapter import FastWAMAdapter  # noqa: F401
+    from benchlink.models.dp_adapter import DPAdapter  # noqa: F401
+    from benchlink.models.anytouch_adapter import AnyTouchAdapter  # noqa: F401
+    from benchlink.models.sparsh_adapter import SparshAdapter  # noqa: F401
+    from benchlink.models.t3_adapter import T3Adapter  # noqa: F401
+    from benchlink.benchmarks.libero_runner import LiberoRunner  # noqa: F401
+    from benchlink.benchmarks.anytouch_probe_runner import AnyTouchProbeRunner  # noqa: F401
+    from benchlink.benchmarks.maniskill_runner import ManiSkillRunner  # noqa: F401
+    from benchlink.benchmarks.robotwin_runner import RoboTwinRunner  # noqa: F401
+    from benchlink.benchmarks.droid_sim_runner import DroidSimRunner  # noqa: F401
+    from benchlink.models.vla_touch_adapter import VLA_TouchAdapter  # noqa: F401
+    from benchlink.models.unitac_ecf_adapter import UniTac_ECFAdapter  # noqa: F401
+    from benchlink.models.openpi_adapter import OpenPiAdapter  # noqa: F401
+    from benchlink.models.motus_adapter import MotusAdapter  # noqa: F401
+    from benchlink.models.dreamzero_adapter import DreamZeroAdapter  # noqa: F401
+    from benchlink.benchmarks.unitac_ecf_runner import UniTacECFRunner  # noqa: F401
+
     models = list_models()
     tactile_models = list_tactile_models()
     benches = list_benchmarks()
