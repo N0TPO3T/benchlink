@@ -1,0 +1,19 @@
+# BenchLink configuration for LIBERO benchmark evaluation.
+
+# LIBERO repository root
+libero_root: "/path/to/libero"
+
+# LIBERO task embeddings root
+task_root: "/path/to/libero/task_embeddings"
+
+# Task name (e.g. "open_the_middle_drawer")
+task_name: "open_the_middle_drawer"
+
+# Simulation parameters
+resolution: 256
+max_steps: 200
+seed: 42
+
+# Expected output metrics
+#   success_rate: float
+#   mean_episode_length: float

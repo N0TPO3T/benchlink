@@ -1,0 +1,16 @@
+# BenchLink configuration for AnyTouch probe evaluation.
+
+# Root path to AnyTouch benchmark data (TAG, OF1, OF2, Feel subsets)
+data_root: "/path/to/anytouch/data"
+
+# Probe subsets to evaluate
+subsets: ["tag", "of1", "of2", "feel"]
+
+# Image configuration
+img_size: 224
+
+# Linear probe split
+seed: 42
+test_size: 0.3
+
+# Expected output per subset plus a weighted 'mean'

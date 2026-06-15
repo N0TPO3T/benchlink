@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "benchlink"
+version = "0.1.0.dev0"
+description = "Unified evaluation framework decoupling robot models from benchmarks via canonical observation contract"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+authors = [
+    { name = "TouchWAM Contributors" },
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+tactile = [
+    "torch>=2.0",
+    "timm>=0.9",
+    "scikit-learn>=1.2",
+    "transformers>=4.36",
+]
+simulation = [
+    "gymnasium>=0.28",
+]
+data = [
+    "zarr>=2.14",
+    "imageio>=2.28",
+    "dill>=0.3.6",
+]
+dev = [
+    "pytest>=7.4",
+    "ruff>=0.1",
+]
+all = ["benchlink[tactile,simulation,data,dev]"]
+
+[project.urls]
+Homepage = "https://github.com/N0TPO3T/benchlink"
+Issues = "https://github.com/N0TPO3T/benchlink/issues"
+
+[project.scripts]
+benchlink = "benchlink.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["benchlink*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

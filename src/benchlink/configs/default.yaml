@@ -1,0 +1,17 @@
+# BenchLink default configuration
+# Fill in paths matching your local setup.
+
+# Root path to benchmark data (e.g. ManiFeel zarr files)
+data_path: "/path/to/benchmark/data"
+
+# Model-specific paths
+rdp_repo: "/path/to/reactive_diffusion_policy"
+rdp_config: "/path/to/config.yaml"
+rdp_checkpoint: "/path/to/model.ckpt"
+
+# Environment
+conda_env: "rdp"            # conda environment name (if applicable)
+horizon: 50                 # observation horizon
+seed: 42
+n_episodes: 5
+device: "cuda"              # or "cpu"
